@@ -6,9 +6,25 @@ import telegram
 from dotenv import load_dotenv
 
 
-def send_message(telegram_token, chat_id, message):
+def handle_response(response, telegram_token, chat_id):
     bot = telegram.Bot(token=telegram_token)
-    while True:
+    task_review = response.json()
+    if task_review.get("status") == "timeout":
+        timestamp = task_review.get("timestamp_to_request")
+        message = None
+    elif task_review.get("status") == "found":
+        timestamp = task_review.get("last_attempt_timestamp")
+        for attempt in task_review["new_attempts"]:
+            if attempt["is_negative"]:
+                status_message = "Доделайте работу и отправьте снова."
+            elif not attempt["is_negative"]:
+                status_message = """Преподавателю всё понравилось.
+                    \nМожно приступать к следующему уроку!"""
+            message = f"""
+                С проверки вернулась работа "{attempt["lesson_title"]}".
+                \n{status_message}\n
+                \n{attempt["lesson_url"]}"""
+    while message:
         try:
             bot.send_message(
                 chat_id=chat_id,
@@ -17,39 +33,6 @@ def send_message(telegram_token, chat_id, message):
             return True
         except telegram.error.NetworkError:
             time.sleep(1)
-
-
-def handle_response(response, telegram_token, chat_id):
-    task_review = response.json()
-    if task_review.get("status") == "timeout":
-        timestamp = task_review.get("timestamp_to_request")
-        send_message(telegram_token, chat_id, "Ожидайте проверки.")
-    elif task_review.get("status") == "found":
-        timestamp = task_review.get("last_attempt_timestamp")
-        for attempt in task_review["new_attempts"]:
-            send_message(
-                telegram_token,
-                chat_id,
-                f'С проверки вернулась работа "{attempt["lesson_title"]}".',
-            )
-            send_message(
-                telegram_token,
-                chat_id,
-                attempt["lesson_url"],
-            )
-            if attempt["is_negative"]:
-                send_message(
-                    telegram_token,
-                    chat_id,
-                    "Доделайте работу и отправьте снова.",
-                )
-            elif not attempt["is_negative"]:
-                send_message(
-                    telegram_token,
-                    chat_id,
-                    "Преподавателю всё понравилось. \
-                    Можно приступать к следующему уроку!",
-                )
     return timestamp
 
 
