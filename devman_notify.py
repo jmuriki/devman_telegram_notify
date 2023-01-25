@@ -1,5 +1,4 @@
 import os
-import json
 import time
 import requests
 import telegram
@@ -21,7 +20,7 @@ def send_message(telegram_token, chat_id, message):
 
 
 def handle_response(raw_response, telegram_token, chat_id):
-    response = json.loads(raw_response.text)
+    response = raw_response.json()
     if response.get("status") == "timeout":
         timestamp = response.get("timestamp_to_request")
         send_message(telegram_token, chat_id, "Ожидайте проверки.")
