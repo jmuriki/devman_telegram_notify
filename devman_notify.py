@@ -19,14 +19,14 @@ def send_message(telegram_token, chat_id, message):
             time.sleep(1)
 
 
-def handle_response(raw_response, telegram_token, chat_id):
-    response = raw_response.json()
-    if response.get("status") == "timeout":
-        timestamp = response.get("timestamp_to_request")
+def handle_response(response, telegram_token, chat_id):
+    task_review = response.json()
+    if task_review.get("status") == "timeout":
+        timestamp = task_review.get("timestamp_to_request")
         send_message(telegram_token, chat_id, "Ожидайте проверки.")
-    elif response.get("status") == "found":
-        timestamp = response.get("last_attempt_timestamp")
-        for attempt in response["new_attempts"]:
+    elif task_review.get("status") == "found":
+        timestamp = task_review.get("last_attempt_timestamp")
+        for attempt in task_review["new_attempts"]:
             send_message(
                 telegram_token,
                 chat_id,
@@ -68,13 +68,13 @@ def main():
             "timestamp": timestamp,
         }
         try:
-            raw_response = requests.get(
+            response = requests.get(
                 long_polling_url,
                 headers=header,
                 params=params,
             )
-            raw_response.raise_for_status()
-            timestamp = handle_response(raw_response, telegram_token, chat_id)
+            response.raise_for_status()
+            timestamp = handle_response(response, telegram_token, chat_id)
         except requests.exceptions.ReadTimeout as error:
             print("ERROR:", error)
             continue
