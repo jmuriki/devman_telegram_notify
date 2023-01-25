@@ -77,10 +77,10 @@ def main():
             raw_response.raise_for_status()
             timestamp = handle_response(raw_response, telegram_token, chat_id)
         except requests.exceptions.ReadTimeout as error:
-            print("ERROR", error)
+            print("ERROR:", error)
             continue
         except requests.exceptions.ConnectionError as error:
-            print("ERROR", error)
+            print("ERROR:", error)
             time.sleep(1)
             continue
 
