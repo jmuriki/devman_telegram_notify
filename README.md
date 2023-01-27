@@ -1,6 +1,7 @@
-# devman_notify
+# devman_telegram_notify
 
 Данный скрипт помогает студенту Devman автоматизировать процесс осведомления о статусе учебных работ, отправленных им на проверку.
+Уведомдения будут приходить в чат с telegram ботом.
 
 ## Установка
 
@@ -47,12 +48,12 @@ TELEGRAM_CHAT_ID=вставьте Telegram Chat ID
 ## Запуск
 
 
-### devman_notify.py
+### devman_telegram_notify.py
 
-Находясь в директории проекта, откройте с помощью python3 файл `devman_notify.py`
+Находясь в директории проекта, откройте с помощью python3 файл `devman_telegram_notify.py`
 
 ```
-python3 devman_notify.py
+python3 devman_telegram_notify.py
 ```
 
 В случае успеха, ожидайте уведомлений о статусе работ в telegram чате с вашим ботом.
