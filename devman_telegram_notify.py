@@ -62,6 +62,8 @@ def handle_response(response, bot, chat_id):
         except telegram.error.NetworkError as error:
             logger.error(error, exc_info=True)
             time.sleep(1)
+        except Exception:
+            raise Exception
     return timestamp
 
 
@@ -95,6 +97,9 @@ def main():
         except requests.exceptions.ConnectionError as error:
             logger.error(error, exc_info=True)
             time.sleep(1)
+            continue
+        except Exception as error:
+            logger.exception(error)
             continue
 
 
