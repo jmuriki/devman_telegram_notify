@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class TelegramLogsHandler(logging.Handler):
@@ -52,18 +51,11 @@ def handle_response(response, bot, chat_id):
 
                 {attempt["lesson_url"]}
             """)
-    while message:
-        try:
-            bot.send_message(
-                chat_id=chat_id,
-                text=message,
-            )
-            return True
-        except telegram.error.NetworkError as error:
-            logger.error(error, exc_info=True)
-            time.sleep(1)
-        except Exception:
-            raise Exception
+    if message:
+        bot.send_message(
+            chat_id=chat_id,
+            text=message,
+        )
     return timestamp
 
 
@@ -71,13 +63,14 @@ def main():
     load_dotenv()
     devman_token = os.environ["DEVMAN_TOKEN"]
     long_polling_url = "https://dvmn.org/api/long_polling/"
-    telegram_token = os.environ["TELEGRAM_TOKEN"]
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
-    bot = telegram.Bot(token=telegram_token)
-    logger.addHandler(TelegramLogsHandler(bot, chat_id))
     header = {
         "Authorization": f"Token {devman_token}",
     }
+    telegram_token = os.environ["TELEGRAM_TOKEN"]
+    chat_id = os.environ["TELEGRAM_CHAT_ID"]
+    bot = telegram.Bot(token=telegram_token)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(TelegramLogsHandler(bot, chat_id))
     timestamp = None
     while True:
         params = {
@@ -92,12 +85,15 @@ def main():
             response.raise_for_status()
             timestamp = handle_response(response, bot, chat_id)
         except requests.exceptions.ReadTimeout as error:
-            logger.error(error, exc_info=True)
+            logger.exception(error)
             continue
         except requests.exceptions.ConnectionError as error:
-            logger.error(error, exc_info=True)
+            logger.exception(error)
             time.sleep(1)
             continue
+        except telegram.error.NetworkError as error:
+            logger.error(error, exc_info=True)
+            time.sleep(1)
         except Exception as error:
             logger.exception(error)
             continue
