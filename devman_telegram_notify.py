@@ -32,7 +32,6 @@ def handle_response(response, bot, chat_id):
     task_review = response.json()
     if task_review.get("status") == "timeout":
         timestamp = task_review.get("timestamp_to_request")
-        message = None
     elif task_review.get("status") == "found":
         logger.info("Получен ответ:")
         timestamp = task_review.get("last_attempt_timestamp")
@@ -51,11 +50,10 @@ def handle_response(response, bot, chat_id):
 
                 {attempt["lesson_url"]}
             """)
-    if message:
-        bot.send_message(
-            chat_id=chat_id,
-            text=message,
-        )
+            bot.send_message(
+                chat_id=chat_id,
+                text=message,
+            )
     return timestamp
 
 
@@ -92,7 +90,7 @@ def main():
             time.sleep(1)
             continue
         except telegram.error.NetworkError as error:
-            logger.error(error, exc_info=True)
+            logger.error(error)
             time.sleep(1)
         except Exception as error:
             logger.exception(error)
