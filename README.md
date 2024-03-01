@@ -63,7 +63,7 @@ python3 devman_telegram_notify.py
 
 Должен быть установлен docker. Находясь в директории, содержащей актуальный файл .env, введите команду:
 ```
-docker run -d --env-file .env jmuriki/devman-telegram-notify
+docker run --restart always -d --env-file .env jmuriki/devman-telegram-notify
 ```
 
 ## Цель проекта
